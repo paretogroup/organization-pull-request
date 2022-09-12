@@ -1,0 +1,12 @@
+name: 'Organization pull request'
+description: 'Report all organization repositories pull requests'
+inputs:
+  organization:
+    description: 'The organization name'
+    required: true
+  token:
+    description: 'The token to use to access the GitHub API'
+    required: true
+runs:
+  using: 'node16'
+  main: 'index.js'
