@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const differenceInDays = require('date-fns/differenceInDays')
 
 const getAllRepositories = async (octokit, org)=>{
     let needGetMorePages = true;
@@ -43,6 +44,7 @@ const main = async () => {
          **/
         const token = core.getInput('token', { required: true });
         const org = core.getInput('organization', { required: true });
+        const pr_number = core.getInput('pr_number', { required: true });
 
         const octokit = new github.getOctokit(token);
 
@@ -68,7 +70,8 @@ const main = async () => {
                             url: pr.url,
                             created_at: pr.created_at,
                             updated_at: pr.updated_at,
-                            created_by: pr.user.login
+                            created_by: pr.user.login,
+                            age: differenceInDays(new Date() , new Date(pr.created_at))
                         }
                     ]
                 };
@@ -88,6 +91,25 @@ const main = async () => {
             issue_number: '1',
             body:body ,
         });
+
+
+        const createReportForRepository = async (reponame, prs) => {
+            const table = prs.map(it => `|${it.title}| ${it.url}| ${it.age} | \n`).join('')
+
+            const body = `## ${reponame} \n| Title | Url | Age| \n| - | - | - | \n${table}`;
+
+            await octokit.rest.issues.createComment({
+                owner: org,
+                repo: 'tech-team-metrics',
+                issue_number: pr_number,
+                body: body,
+            });
+        }
+
+
+        for (const repo of Object.keys(report)) {
+            await createReportForRepository(repo, report[repo]);
+        }
 
 
     } catch (error) {
