@@ -88,7 +88,7 @@ const main = async () => {
         await octokit.rest.issues.createComment({
             owner: org,
             repo: 'tech-team-metrics',
-            issue_number: '1',
+            issue_number: pr_number,
             body:body ,
         });
 
