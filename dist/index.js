@@ -10075,7 +10075,7 @@ const main = async () => {
                     [repo.name]: [...(report[repo.name] || []),
                         {
                             title: pr.title,
-                            url: pr.url,
+                            url: pr.html_url,
                             created_at: pr.created_at,
                             updated_at: pr.updated_at,
                             created_by: pr.user.login,
@@ -10086,12 +10086,17 @@ const main = async () => {
             });
         }
 
+
+
+
         const summaryTable = Object.keys(summary)
             .filter(it => summary[it] > 0)
             .sort()
             .map( it => `|${it}| ${summary[it]}| \n`).join('')
 
-        const body = `## Open PRs Summary \n| Name | Open PRs | \n| - | - | \n${summaryTable}`
+        const total = `| Total | ${Object.values(summary).reduce((acc, next) => acc + next, 0)} | \n`
+
+        const body = `## Open PRs Summary \n| Name | Open PRs | \n| - | - | \n${summaryTable} ${total}`
 
         await octokit.rest.issues.createComment({
             owner: org,
